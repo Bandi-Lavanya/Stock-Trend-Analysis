@@ -20,6 +20,9 @@ def compute_metrics(y_true, y_pred):
     return {"rmse": float(rmse), "mape": float(mape)}
 
 
+# =============================
+# 📈 Forecast Endpoint (Already Existing)
+# =============================
 @app.route("/forecast", methods=["POST"])
 def forecast():
     try:
@@ -112,6 +115,71 @@ def forecast():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# =============================
+# 📑 Technical Analysis Endpoint (NEW)
+# =============================
+@app.route("/analysis", methods=["POST"])
+def analysis():
+    try:
+        data = request.json
+        ticker = data.get("ticker")
+
+        if not ticker:
+            return jsonify({"error": "Ticker is required"}), 400
+
+        # Download 6 months of stock data
+        df = yf.download(ticker, period="6mo")
+
+        if df.empty:
+            return jsonify({"error": "Invalid ticker or no data"}), 400
+
+        # 🔹 Fix MultiIndex columns from yfinance
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = [col[0] for col in df.columns]
+
+        df.reset_index(inplace=True)
+        df["Date"] = df["Date"].astype(str)
+
+        # 🔹 Indicators
+        df["SMA_20"] = df["Close"].rolling(window=20).mean()
+        df["EMA_20"] = df["Close"].ewm(span=20, adjust=False).mean()
+
+        # RSI
+        delta = df["Close"].diff()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
+        avg_gain = gain.rolling(window=14).mean()
+        avg_loss = loss.rolling(window=14).mean()
+        rs = avg_gain / avg_loss
+        df["RSI"] = 100 - (100 / (1 + rs))
+
+        # MACD
+        short_ema = df["Close"].ewm(span=12, adjust=False).mean()
+        long_ema = df["Close"].ewm(span=26, adjust=False).mean()
+        df["MACD"] = short_ema - long_ema
+        df["Signal"] = df["MACD"].ewm(span=9, adjust=False).mean()
+
+        # ✅ Fixed Bollinger Bands
+        rolling_mean = df["Close"].rolling(window=20).mean()
+        rolling_std = df["Close"].rolling(window=20).std()
+
+        df["BB_Mid"] = rolling_mean
+        df["BB_Upper"] = rolling_mean + (rolling_std * 2)
+        df["BB_Lower"] = rolling_mean - (rolling_std * 2)
+
+        # Format response
+        result = df[
+            ["Date", "Close", "SMA_20", "EMA_20", "RSI", "MACD", "Signal", "BB_Upper", "BB_Lower"]
+        ].dropna()
+
+        return jsonify({"ticker": ticker, "data": result.to_dict(orient="records")})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 if __name__ == "__main__":

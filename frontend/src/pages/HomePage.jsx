@@ -4,7 +4,7 @@ import bg from "../assets/bg.jpg";
 
 export default function HomePage({ onLogout }) {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")); // ✅ credentials remain after logout
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <div
@@ -20,10 +20,9 @@ export default function HomePage({ onLogout }) {
         color: "white",
         textAlign: "center",
         padding: "20px",
-        position: "relative", // for positioning logout button
+        position: "relative",
       }}
     >
-      {/* Logout button at top-right */}
       <button
         onClick={onLogout}
         style={{
@@ -47,7 +46,6 @@ export default function HomePage({ onLogout }) {
         📊 Stock Trend Analysis
       </h1>
 
-      {/* Personalized Welcome Message */}
       {user && (
         <>
           <h2
@@ -63,8 +61,6 @@ export default function HomePage({ onLogout }) {
             </span>{" "}
             🚀
           </h2>
-
-          {/* Tagline */}
           <p
             style={{
               fontSize: "1.3rem",
@@ -97,6 +93,23 @@ export default function HomePage({ onLogout }) {
           }}
         >
           🔮 Stock Price Prediction
+        </button>
+
+        {/* ✅ New Analysis button */}
+        <button
+          onClick={() => navigate("/analysis")}
+          style={{
+            padding: "15px 30px",
+            fontSize: "1.2rem",
+            borderRadius: "10px",
+            border: "none",
+            background: "#28a745",
+            color: "white",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          📑 Stock Analysis
         </button>
       </div>
     </div>
