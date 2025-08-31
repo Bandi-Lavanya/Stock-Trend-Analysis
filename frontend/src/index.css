@@ -1,0 +1,73 @@
+:root {
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #eee;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+header .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.5rem;
+}
+
+header .muted {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.card .title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #28a745;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.muted {
+  color: #aaa;
+}
+
+.kpi {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
