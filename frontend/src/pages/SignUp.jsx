@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bg from "../assets/bg.jpg"; // ✅ same background
+import bg from "../assets/bg.jpg"; // background image
 
 export default function SignUp() {
   const [username, setUsername] = useState("");
@@ -8,14 +8,24 @@ export default function SignUp() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username && password) {
-      localStorage.setItem("user", JSON.stringify({ username, password }));
-      setMessage("✅ Sign up successful! Please login.");
-      setTimeout(() => navigate("/login"), 1000);
-    } else {
-      setMessage("❌ Please fill in all fields.");
+    try {
+      const res = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("✅ Sign up successful! Please login.");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        setMessage(`❌ ${data.error}`);
+      }
+    } catch (err) {
+      setMessage("❌ Error connecting to server");
     }
   };
 
@@ -32,17 +42,16 @@ export default function SignUp() {
       }}
     >
       <div
-        className="card"
         style={{
           width: 400,
           padding: 24,
           textAlign: "center",
-          background: "rgba(0,0,0,0.6)", // ✅ semi-transparent card
+          background: "rgba(0,0,0,0.6)",
           borderRadius: "12px",
           color: "white",
         }}
       >
-        <h2 className="title">Sign Up</h2>
+        <h2>Sign Up</h2>
         <form
           onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 12 }}
@@ -63,14 +72,24 @@ export default function SignUp() {
             required
             style={{ padding: "10px", borderRadius: "6px", border: "none" }}
           />
-          <button type="submit" className="primary" style={{ padding: "10px" }}>
+          <button
+            type="submit"
+            style={{
+              padding: "10px",
+              borderRadius: "6px",
+              border: "none",
+              background: "#2196F3",
+              color: "white",
+              cursor: "pointer",
+            }}
+          >
             Sign Up
           </button>
         </form>
-        <p className="muted" style={{ marginTop: 12 }}>
+        <p style={{ marginTop: 12 }}>
           Already have an account? <Link to="/login">Login</Link>
         </p>
-        {message && <p className="muted">{message}</p>}
+        {message && <p>{message}</p>}
       </div>
     </div>
   );
